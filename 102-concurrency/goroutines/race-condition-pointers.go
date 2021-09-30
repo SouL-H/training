@@ -11,12 +11,12 @@ type RaceTest struct {
 
 func main() {
 	raceTest := &RaceTest{}
-
+	lock := &sync.Mutex{}
 	wg := &sync.WaitGroup{}
 	wg.Add(10000)
 
-	for i:=0; i<10000; i++ {
-		go increment(raceTest, wg)
+	for i := 0; i < 10000; i++ {
+		go increment(raceTest, wg, lock)
 	}
 
 	wg.Wait()
@@ -24,7 +24,10 @@ func main() {
 	fmt.Println(raceTest)
 }
 
-func increment(rt *RaceTest, wg *sync.WaitGroup) {
+//Race-Condition fixed
+func increment(rt *RaceTest, wg *sync.WaitGroup, lk *sync.Mutex) {
+	lk.Lock()
 	rt.Val += 1
+	lk.Unlock()
 	wg.Done()
 }
